@@ -1,0 +1,104 @@
+const assert = require("node:assert/strict");
+const { mkdirSync } = require("node:fs");
+const { resolve } = require("node:path");
+const { chromium } = require(process.argv[2] || "playwright");
+const url = process.argv[3] || "http://localhost:3000";
+const output = resolve(__dirname, "../screenshots/cursor");
+mkdirSync(output, { recursive: true });
+
+(async () => {
+  const browser = await chromium.launch({ channel: "msedge", headless: true });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: "no-preference" });
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => { if (message.type() === "error" && /hydrated|hydration|didn't match/i.test(message.text())) errors.push(message.text()); });
+  try {
+    assert.equal((await page.goto(url, { timeout: 60000 })).status(), 200);
+    await page.locator(".portfolio-loader").waitFor({ state: "detached" });
+    const cursor = page.locator(".fluid-cursor");
+    const path = cursor.locator(".cursor-ink");
+    await cursor.waitFor({ state: "attached" });
+    await page.locator(".journey-fallback").waitFor({ state: "detached" });
+    assert.equal(await cursor.getAttribute("aria-hidden"), "true");
+    assert.equal(await cursor.locator("circle, ellipse").count(), 0, "No circle or centre-dot cursor");
+    assert.equal(await cursor.evaluate((element) => getComputedStyle(element).pointerEvents), "none");
+    await page.mouse.move(620, 110);
+    await page.waitForFunction(() => document.documentElement.dataset.fluidCursor === "true");
+    await page.waitForTimeout(600);
+    const idle = await path.getAttribute("d");
+    await page.mouse.move(830, 150);
+    await page.waitForFunction(() => document.querySelector(".fluid-cursor").style.transform === "translate3d(830px, 150px, 0px)");
+    assert.notEqual(await path.getAttribute("d"), idle, "Soft body deforms in motion while the tip tracks exactly");
+    await page.screenshot({ path: resolve(output, "moving.png") });
+    await page.waitForTimeout(1100);
+    const settled = await path.getAttribute("d");
+    await page.waitForTimeout(200);
+    assert.equal(await path.getAttribute("d"), settled, "Animation settles rather than running forever");
+    await page.mouse.move(830, 550);
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    assert.ok(await path.evaluate((element) => element.getBBox().height > 10), "Fast downward motion does not collapse the pointer body");
+    assert.equal(await page.locator(".hero-primary").evaluate((element) => getComputedStyle(element).cursor), "none");
+    await page.locator(".hero-primary").hover();
+    assert.equal(await cursor.getAttribute("data-mode"), "link");
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: resolve(output, "link.png") });
+    await page.mouse.down();
+    assert.equal(await cursor.getAttribute("data-pressed"), "true");
+    await page.mouse.move(620, 110);
+    await page.mouse.up();
+    assert.equal(await cursor.getAttribute("data-pressed"), "false");
+
+    await page.locator("#solar-planet").hover();
+    assert.equal(await cursor.getAttribute("data-visible"), "false", "Native select keeps its system pointer");
+    assert.ok(await page.locator("#solar-planet").evaluate((element) => getComputedStyle(element).cursor !== "none"));
+    await page.mouse.move(620, 110);
+    await page.keyboard.press("Tab");
+    assert.equal(await cursor.getAttribute("data-visible"), "false", "Keyboard navigation restores native behavior");
+    assert.equal(await page.evaluate(() => document.documentElement.hasAttribute("data-fluid-cursor")), false);
+
+    await page.mouse.move(650, 130);
+    await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    assert.equal(await cursor.getAttribute("data-visible"), "false");
+    await page.mouse.move(680, 130);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.waitForFunction(() => !document.documentElement.hasAttribute("data-fluid-cursor"));
+    await page.mouse.move(700, 130);
+    assert.equal(await cursor.getAttribute("data-visible"), "false");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.mouse.move(710, 130);
+    await page.waitForFunction(() => document.documentElement.dataset.fluidCursor === "true");
+    await page.emulateMedia({ forcedColors: "active" });
+    await page.waitForFunction(() => !document.documentElement.hasAttribute("data-fluid-cursor"));
+    await page.emulateMedia({ forcedColors: "none" });
+    await page.mouse.move(720, 130);
+    await page.waitForFunction(() => document.documentElement.dataset.fluidCursor === "true");
+    await page.mouse.move(-5, -5);
+    await page.waitForFunction(() => document.querySelector(".fluid-cursor").dataset.visible === "false");
+
+    await page.goto(`${url}/privacy`);
+    await page.mouse.move(600, 180);
+    await page.waitForFunction(() => document.documentElement.dataset.fluidCursor === "true");
+    await page.evaluate(() => {
+      const input = document.createElement("input");
+      input.id = "native-cursor-check";
+      input.style.cssText = "position:fixed;left:300px;top:100px;width:200px;height:44px;z-index:12000";
+      document.body.append(input);
+    });
+    await page.locator("#native-cursor-check").hover();
+    assert.equal(await cursor.getAttribute("data-visible"), "false", "Editable fields retain the native text cursor");
+    await page.locator("#native-cursor-check").fill("Typing still works");
+    assert.equal(await page.locator("#native-cursor-check").inputValue(), "Typing still works");
+    await page.close();
+
+    const touch = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    touch.on("pageerror", (error) => errors.push(error.message));
+    await touch.goto(`${url}/privacy`);
+    await touch.locator(".fluid-cursor").waitFor({ state: "attached" });
+    await touch.mouse.move(150, 150);
+    assert.equal(await touch.evaluate(() => document.documentElement.hasAttribute("data-fluid-cursor")), false);
+    assert.equal(await touch.locator(".fluid-cursor").evaluate((element) => getComputedStyle(element).display), "none");
+    assert.deepEqual(errors, []);
+    console.log("Fluid cursor passed: tapered no-circle shape, accurate tip, elastic motion/settling, link/press states, native inputs/selects, keyboard/blur/leave, live reduced-motion/forced-colors changes, touch fallback, shared layout, no runtime errors.");
+    console.log(`Screenshots: ${output}`);
+  } finally { await browser.close(); }
+})().catch((error) => { console.error(error); process.exitCode = 1; });
