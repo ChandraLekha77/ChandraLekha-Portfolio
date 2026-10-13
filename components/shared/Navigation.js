@@ -141,7 +141,7 @@ export default function Navigation() {
         }
 
         .is-scrolled .identity-anchor {
-          background: rgba(241, 240, 236, 0.9);
+          background: rgba(11, 18, 32, 0.9);
           box-shadow: none;
           backdrop-filter: blur(12px);
         }
@@ -180,13 +180,13 @@ export default function Navigation() {
         .contact-corner span {
           font-family: ui-monospace, monospace;
           font-size: 0.72rem;
-          color: #383d38;
+          color: var(--text-dim);
           letter-spacing: 0.09em;
         }
 
         .identity-detail small { font-family: var(--font-general-sans), sans-serif; font-size: .88rem; font-weight: 500; letter-spacing: .01em; }
-        .resume-download { position: absolute; top: 1.3rem; right: clamp(1rem, 2.25vw, 2.5rem); display: inline-flex; align-items: center; justify-content: space-between; gap: 1.4rem; min-height: 44px; padding: .6rem .85rem; border: 1px solid #737870; background: rgba(241, 240, 236, .94); color: #242824; font-size: .85rem; font-weight: 500; }
-        .resume-download:hover { background: #e5e5dd; }
+        .resume-download { position: absolute; top: 1.3rem; right: clamp(1rem, 2.25vw, 2.5rem); display: inline-flex; align-items: center; justify-content: space-between; gap: 1.4rem; min-height: 44px; padding: .6rem .85rem; border: 1px solid var(--line-strong); background: rgba(11, 18, 32, .94); color: var(--text); font-size: .85rem; font-weight: 500; }
+        .resume-download:hover { background: var(--surface-hover); }
         .resume-download[hidden] { display: none; }
 
         .chapter-rail {
@@ -204,7 +204,7 @@ export default function Navigation() {
           grid-template-columns: 1.8rem 5.3rem;
           align-items: center;
           min-height: 2.9rem;
-          color: #454a44;
+          color: var(--text-dim);
           border-top: 1px solid var(--line);
           transition: color 180ms ease;
         }
@@ -250,7 +250,7 @@ export default function Navigation() {
 
         .is-scrolled .contact-corner {
           padding: .35rem .6rem;
-          background: rgba(241, 240, 236, 0.94);
+          background: rgba(11, 18, 32, 0.94);
         }
 
         .mobile-index-toggle,
@@ -276,7 +276,7 @@ export default function Navigation() {
             height: 2.75rem;
             padding: 0 0.75rem 0 0.9rem;
             border: 1px solid var(--line);
-            background: rgba(241, 240, 236, 0.9);
+            background: rgba(11, 18, 32, 0.9);
             color: var(--text);
           }
 
@@ -298,7 +298,7 @@ export default function Navigation() {
             flex-direction: column;
             justify-content: center;
             padding: 5.5rem 1.25rem 2rem;
-            background: rgba(241, 240, 236, 0.98);
+            background: rgba(11, 18, 32, 0.98);
             backdrop-filter: blur(18px);
           }
 

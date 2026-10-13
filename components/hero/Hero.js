@@ -14,19 +14,19 @@ export default function Hero() {
         <a href={`mailto:${profile.email}`}>Let’s talk ↗</a>
       </div>
       <style jsx>{`
-        .hero-copy { position: absolute; top: 50%; left: clamp(1.25rem, 6.7vw, 6rem); width: 31%; max-width: 36rem; transform: translateY(-50%); color: #171817; }
-        .eyebrow { display: flex; align-items: center; gap: .7rem; font: 500 .75rem/1.6 ui-monospace, monospace; letter-spacing: .1em; color: #383d38; }
-        .eyebrow i { width: 6px; height: 6px; background: #383d38; border-radius: 50%; }
-        h1 { font-family: var(--font-general-sans), sans-serif; font-size: clamp(2.05rem, 4.5vw, 5rem); color: #111411; font-weight: 600; letter-spacing: -.055em; line-height: 1.04; margin: 1.5rem 0; }
+        .hero-copy { position: absolute; top: 50%; left: clamp(1.25rem, 6.7vw, 6rem); width: 31%; max-width: 36rem; transform: translateY(-50%); color: var(--text); }
+        .eyebrow { display: flex; align-items: center; gap: .7rem; font: 500 .75rem/1.6 ui-monospace, monospace; letter-spacing: .1em; color: var(--text-dim); }
+        .eyebrow i { width: 6px; height: 6px; background: var(--text-dim); border-radius: 50%; }
+        h1 { font-family: var(--font-general-sans), sans-serif; font-size: clamp(2.05rem, 4.5vw, 5rem); color: var(--text); font-weight: 600; letter-spacing: -.055em; line-height: 1.04; margin: 1.5rem 0; }
         .given-name { display: block; font-size: 1em; line-height: inherit; letter-spacing: inherit; white-space: nowrap; }
-        .name-dot { color: #383d38; }
-        .role { font-size: 1.1rem; font-weight: 600; color: #242824; }
-        .role span { margin-left: .3rem; font-size: .9rem; font-weight: 500; color: #383d38; }
-        .intro { font-size: clamp(1.05rem, 1.35vw, 1.2rem); font-weight: 500; line-height: 1.55; color: #242824; max-width: 23rem; margin-top: 1.1rem; }
+        .name-dot { color: var(--text-dim); }
+        .role { font-size: 1.1rem; font-weight: 600; color: var(--text); }
+        .role span { margin-left: .3rem; font-size: .9rem; font-weight: 500; color: var(--text-dim); }
+        .intro { font-size: clamp(1.05rem, 1.35vw, 1.2rem); font-weight: 500; line-height: 1.55; color: var(--text); max-width: 23rem; margin-top: 1.1rem; }
         .hero-actions { display: flex; align-items: center; gap: 1.8rem; margin-top: 2rem; }
-        .hero-actions a { font-size: .9rem; font-weight: 500; color: #171817; padding-bottom: .4rem; border-bottom: 1px solid #383d38; }
-        .hero-actions .hero-primary { display: flex; align-items: center; gap: 1.8rem; min-height: 48px; padding: .8rem 1.1rem; color: #f1f0ec; background: #222321; border: 1px solid #222321; border-radius: 2px; transition: background 220ms ease, transform 220ms ease; }
-        .hero-primary:hover { background: #383d38; transform: translateY(-2px); }
+        .hero-actions a { font-size: .9rem; font-weight: 500; color: var(--text); padding-bottom: .4rem; border-bottom: 1px solid var(--text-dim); }
+        .hero-actions .hero-primary { display: flex; align-items: center; gap: 1.8rem; min-height: 48px; padding: .8rem 1.1rem; color: var(--bg); background: var(--accent); border: 1px solid var(--accent); border-radius: 2px; transition: background 220ms ease, transform 220ms ease; }
+        .hero-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
         .hero-primary:focus-visible { outline-offset: 5px; }
         @media (prefers-reduced-motion: reduce) { .hero-primary:hover { transform: none; } }
         @media (max-width: 759px) {

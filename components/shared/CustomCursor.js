@@ -121,8 +121,8 @@ export default function CustomCursor() {
       .fluid-cursor { position: fixed; top: 0; left: 0; width: 0; height: 0; z-index: 11000; pointer-events: none; visibility: hidden; will-change: transform; }
       .fluid-cursor[data-visible="true"] { visibility: visible; }
       .fluid-cursor svg { position: absolute; left: -60px; top: -60px; overflow: visible; pointer-events: none; filter: drop-shadow(0 2px 2px rgba(25, 30, 26, .15)); }
-      .cursor-ink { fill: #242824; stroke: #f1f0ec; stroke-width: 1; stroke-linejoin: round; }
-      .cursor-seam { fill: none; stroke: #c2b894; stroke-width: 1; stroke-linecap: round; }
+      .cursor-ink { fill: var(--text); stroke: var(--bg); stroke-width: 1; stroke-linejoin: round; }
+      .cursor-seam { fill: none; stroke: var(--accent); stroke-width: 1; stroke-linecap: round; }
       @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
         html[data-fluid-cursor="true"], html[data-fluid-cursor="true"] * { cursor: none !important; }
       }

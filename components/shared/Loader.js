@@ -103,7 +103,7 @@ export default function Loader() {
     {/* The dev CSS bundle may also depend on JavaScript; keep this escape in server HTML. */}
     <style>{`@keyframes opening-fail-open { from, to { visibility: hidden; pointer-events: none; } }`}</style>
     <aside ref={overlayRef} className="portfolio-loader" data-phase={phase} data-native-cursor role="dialog" tabIndex={-1} aria-modal="true" aria-label="Portfolio introduction"
-      style={{ position: "fixed", inset: 0, background: "#f1f0ec", zIndex: 12000, animation: "opening-fail-open 1ms 8s forwards" }}
+      style={{ position: "fixed", inset: 0, background: "var(--bg, #0b1220)", zIndex: 12000, animation: "opening-fail-open 1ms 8s forwards" }}
       onKeyDown={(event) => {
         if (event.key === "Escape") skipAction.current?.();
         if (event.key === "Tab") { event.preventDefault(); skipRef.current?.focus(); }

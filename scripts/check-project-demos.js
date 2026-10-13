@@ -37,12 +37,12 @@ async function check() {
       return { background: rgb("--bg"), text: rgb("--text"), accent: rgb("--accent"), line: rgb("--line") };
     });
     for (const demo of [email, voice]) {
-      assert.equal(await sample(demo, "backgroundColor"), palette.background, "Both demos use the portfolio's warm ivory background");
-      assert.equal(await sample(demo, "color"), palette.text, "Both demos use the portfolio's charcoal text");
+      assert.equal(await sample(demo, "backgroundColor"), palette.background, "Both demos use the shared portfolio background");
+      assert.equal(await sample(demo, "color"), palette.text, "Both demos use the shared portfolio text color");
       assert.equal(await sample(demo, "borderTopColor"), palette.line, "Panel borders use the shared palette");
     }
     assert.equal(await sample(email.locator(".flow-packet").first(), "stroke"), palette.accent);
-    assert.equal(await sample(voice.locator(".signal-bar").first(), "stroke"), palette.accent, "Voice signal matches the portfolio accent instead of gold on navy");
+    assert.equal(await sample(voice.locator(".signal-bar").first(), "stroke"), palette.accent, "Voice signal matches the shared portfolio accent");
     await show(email);
     await expectRunning(email, true);
     const packet = email.locator(".email-diagram-desktop .flow-packet").first();
@@ -126,7 +126,7 @@ async function check() {
     assert.ok((await voice.locator(".voice-route").innerText()).includes("OpenAI Whisper"));
     await capture(voice, "mobile-reduced-motion.png");
     assert.deepEqual(errors, [], "No runtime or hydration errors");
-    console.log("Project demos passed: shared ivory/charcoal palette, packet/wave/text motion, keyboard pause/resume, topic/mode switching, offscreen pause, rail clearance, 768/720/600/390/360/320px layouts, reduced motion.");
+    console.log("Project demos passed: shared theme palette, packet/wave/text motion, keyboard pause/resume, topic/mode switching, offscreen pause, rail clearance, 768/720/600/390/360/320px layouts, reduced motion.");
     console.log(`Screenshots: ${output}`);
   } finally { await browser.close(); }
 }

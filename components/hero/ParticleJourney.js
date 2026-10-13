@@ -118,8 +118,9 @@ export default function ParticleJourney() {
       let activeChapter = "identity";
       let reducedMotion = motionPreference.matches;
       let labelFont = "sans-serif";
-      let backgroundColor = "#f1f0ec";
-      let textColor = "#171817";
+      let backgroundColor = "#0b1220";
+      let textColor = "#edf2fa";
+      let globeColor = [184, 199, 179];
 
       function measure() {
         width = stage.clientWidth;
@@ -132,6 +133,7 @@ export default function ParticleJourney() {
         labelFont = styles.fontFamily;
         backgroundColor = styles.getPropertyValue("--bg").trim();
         textColor = styles.getPropertyValue("--text").trim();
+        globeColor = styles.getPropertyValue("--particle-rgb").trim().split(/\s+/).map(Number);
         const count = width < 760 ? 3600 : 7200;
         particles = Array.from({ length: count }, (_, index) => {
           const y = 1 - (index + .5) / count * 2;
@@ -211,7 +213,10 @@ export default function ParticleJourney() {
           const alpha = sourceAlpha + (globeAlpha - sourceAlpha) * merge;
           const sourceSize = mobile ? .9 : 1.1;
           const radius = sourceSize + ((mobile ? .7 : .9) - sourceSize) * merge;
-          const color = source.color.map((channel, index) => Math.round(channel + ([40, 49, 46][index] - channel) * merge));
+          const color = source.color.map((channel, index) => {
+            const lit = Math.min(255, channel + 24);
+            return Math.round(lit + (globeColor[index] - lit) * merge);
+          });
           gpu.point(pointIndex++, x, y, source.z * 16 * (1 - merge) + sz * 20 * merge,
             color, alpha, radius, source.sun ? (1 - merge) * .45 : 0);
         }
@@ -233,7 +238,7 @@ export default function ParticleJourney() {
             context.setLineDash([.1, 5]);
             context.lineDashOffset = -elapsed * (3 + index * .35);
             for (let half = 0; half < 2; half++) {
-              context.strokeStyle = index === activePlanetRef.current ? (half ? "rgba(62,74,65,.34)" : "#525b53") : (half ? "rgba(104,116,111,.22)" : "rgba(104,116,111,.5)");
+              context.strokeStyle = index === activePlanetRef.current ? (half ? "rgba(184,199,179,.38)" : "#b8c7b3") : (half ? "rgba(184,199,179,.2)" : "rgba(184,199,179,.4)");
               context.beginPath(); context.ellipse(sourceX, sourceY, planet.orbit * sourceRadius, planet.orbit * sourceRadius * .6, orbitTilt, half * Math.PI, (half + 1) * Math.PI); context.stroke();
             }
             context.setLineDash([]);
@@ -251,7 +256,7 @@ export default function ParticleJourney() {
               context.lineWidth = 1.15;
             }
             if (index === activePlanetRef.current) {
-              context.strokeStyle = "#383d38";
+              context.strokeStyle = textColor;
               context.beginPath(); context.arc(x, y, size + 5, 0, Math.PI * 2); context.stroke();
             }
             const button = planetButtons.current[index];
@@ -269,7 +274,7 @@ export default function ParticleJourney() {
 
         if (techOpacity > 0.01) {
           context.globalAlpha = techOpacity;
-          context.strokeStyle = "rgba(104, 116, 111, 0.22)";
+          context.strokeStyle = "rgba(184, 199, 179, 0.35)";
           context.lineWidth = 0.7;
           context.beginPath();
           context.ellipse(centerX, centerY, globeRadius * 1.13, globeRadius * 0.34, -0.22, 0, Math.PI * 2);
@@ -367,7 +372,7 @@ export default function ParticleJourney() {
               {planets.map((planet, index) => {
                 const position = planetPosition(index); return <g key={planet.name}>
                   <ellipse rx={planet.orbit} ry={planet.orbit * .6} transform={`rotate(${(orbitTilt * 180 / Math.PI).toFixed(5)})`} fill="none" stroke="var(--line-strong)" strokeWidth=".006" strokeDasharray=".001 .028" strokeLinecap="round" />
-                  <circle cx={position.x.toFixed(5)} cy={position.y.toFixed(5)} r={planet.size} fill={`rgb(${planet.color.join(",")})`} stroke={activePlanet === index ? "#222321" : "none"} strokeWidth=".008" />
+                  <circle cx={position.x.toFixed(5)} cy={position.y.toFixed(5)} r={planet.size} fill={`rgb(${planet.color.join(",")})`} stroke={activePlanet === index ? "var(--accent)" : "none"} strokeWidth=".008" />
                   {index === 5 && <ellipse cx={position.x.toFixed(5)} cy={position.y.toFixed(5)} transform={`rotate(${(orbitTilt * 180 / Math.PI).toFixed(5)} ${position.x.toFixed(5)} ${position.y.toFixed(5)})`} rx={planet.size * 1.9} ry={planet.size * .5} fill="none" stroke="#ac956a" strokeWidth=".008" strokeDasharray=".001 .018" strokeLinecap="round" />}
                 </g>;
               })}
@@ -436,34 +441,34 @@ export default function ParticleJourney() {
         .solar-interaction { position: absolute; inset: 0; opacity: var(--identity-opacity); pointer-events: none; }
         .planet-targets { position: absolute; inset: 0; pointer-events: none; }
         .planet-target { position: absolute; width: 44px; height: 44px; transform: translate(-50%, -50%); border: 0; background: transparent; cursor: pointer; pointer-events: auto; border-radius: 50%; }
-        .planet-target span { position: absolute; top: calc(50% + var(--label-y, 14px)); left: calc(50% + var(--label-x, 0px)); transform: translate(-50%, -50%); background: var(--bg); color: #242824; padding: .2rem .3rem; font: 500 .72rem ui-monospace, monospace; white-space: nowrap; }
+        .planet-target span { position: absolute; top: calc(50% + var(--label-y, 14px)); left: calc(50% + var(--label-x, 0px)); transform: translate(-50%, -50%); background: var(--bg); color: var(--text); padding: .2rem .3rem; font: 500 .72rem ui-monospace, monospace; white-space: nowrap; }
         .planet-target:hover span, .planet-target:focus-visible span { text-decoration: underline; text-underline-offset: 4px; }
-        .planet-card { position: absolute; z-index: 2; left: clamp(43%, calc(var(--planet-x, 65vw) + 28px), calc(86% - 15rem)); top: clamp(5.5rem, calc(var(--planet-y, 40vh) + 20px), calc(100% - 20rem)); width: 15rem; padding: .85rem 1rem 1rem; border: 1px solid #899085; border-radius: 3px; background: rgba(247, 246, 241, .98); box-shadow: 0 8px 28px rgba(34, 40, 33, .09); pointer-events: auto; color: #242824; }
+        .planet-card { position: absolute; z-index: 2; left: clamp(43%, calc(var(--planet-x, 65vw) + 28px), calc(86% - 15rem)); top: clamp(5.5rem, calc(var(--planet-y, 40vh) + 20px), calc(100% - 20rem)); width: 15rem; padding: .85rem 1rem 1rem; border: 1px solid var(--line-strong); border-radius: 3px; background: var(--surface); box-shadow: 0 8px 28px rgba(0, 0, 0, .3); pointer-events: auto; color: var(--text); }
         .planet-card[hidden] { display: none; }
         .card-open .solar-explorer { visibility: hidden; }
         .card-heading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-        .card-heading span { font: .65rem ui-monospace, monospace; letter-spacing: .04em; color: #454a44; }
-        .card-heading button { display: grid; place-items: center; width: 44px; height: 44px; margin: -.6rem -.65rem -.35rem 0; border: 0; background: transparent; color: #242824; font-size: 1.3rem; }
+        .card-heading span { font: .65rem ui-monospace, monospace; letter-spacing: .04em; color: var(--text-dim); }
+        .card-heading button { display: grid; place-items: center; width: 44px; height: 44px; margin: -.6rem -.65rem -.35rem 0; border: 0; background: transparent; color: var(--text); font-size: 1.3rem; }
         .planet-card h3 { font-size: 1.2rem; font-weight: 600; margin: .45rem 0 .4rem; }
-        .planet-card p { font-size: .85rem; line-height: 1.5; color: #383d38; }
-        .planet-card .work-example { border-top: 1px solid #cccec4; padding-top: .65rem; margin-top: .65rem; }
+        .planet-card p { font-size: .85rem; line-height: 1.5; color: var(--text-dim); }
+        .planet-card .work-example { border-top: 1px solid var(--line); padding-top: .65rem; margin-top: .65rem; }
         .solar-explorer { position: absolute; left: calc(50% + 180px - 9rem); width: 18rem; top: calc(46% + min(25.5vw, 42svh, (37vw - 180px) / .91) * .72 + 24px); pointer-events: auto; }
-        .solar-explorer label { display: block; font: .7rem/1.5 ui-monospace, monospace; letter-spacing: .06em; color: #454a44; }
+        .solar-explorer label { display: block; font: .7rem/1.5 ui-monospace, monospace; letter-spacing: .06em; color: var(--text-dim); }
         .solar-explorer select { display: block; width: 100%; min-height: 44px; border: 0; border-bottom: 1px solid var(--line-strong); background: transparent; color: var(--text); font-size: .8rem; cursor: pointer; }
         .solar-explorer p { margin-top: .45rem; font-size: .72rem; line-height: 1.5; }
-        .solar-explorer small { display: block; margin-top: .35rem; color: #454a44; font: .65rem/1.4 ui-monospace, monospace; }
+        .solar-explorer small { display: block; margin-top: .35rem; color: var(--text-dim); font: .65rem/1.4 ui-monospace, monospace; }
         .technology-content { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 clamp(1.25rem, 6.7vw, 6rem); opacity: var(--technology-opacity); pointer-events: none; }
         .technology-content[aria-hidden="false"] { pointer-events: auto; }
         .technology-copy { margin-left: 52%; max-width: 38%; }
-        .chapter-eyebrow { font-size: .75rem; letter-spacing: .1em; color: #454a44; }
+        .chapter-eyebrow { font-size: .75rem; letter-spacing: .1em; color: var(--text-dim); }
         h2 { font-family: var(--font-general-sans), sans-serif; font-size: clamp(3rem, 6.2vw, 6rem); font-weight: 500; letter-spacing: -0.055em; line-height: 0.98; margin: 1.4rem 0; }
         p { font-size: clamp(1rem, 1.35vw, 1.2rem); line-height: 1.6; max-width: 26rem; color: var(--text-dim); }
         .experience-proof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; border-top: 1px solid var(--line); margin-top: 1.35rem; padding-top: 1rem; }
         .experience-proof div { display: flex; flex-direction: column-reverse; gap: .35rem; }
         .experience-proof dd { font-size: clamp(1.6rem, 2.7vw, 2.5rem); line-height: 1; letter-spacing: -.04em; font-weight: 500; }
-        .experience-proof dt { font-size: .75rem; line-height: 1.5; color: #454a44; }
+        .experience-proof dt { font-size: .75rem; line-height: 1.5; color: var(--text-dim); }
         .technology-link { display: inline-flex; gap: 2rem; align-items: center; font-size: 0.85rem; margin-top: 1.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--line-strong); }
-        .journey-caption { position: absolute; bottom: 2rem; left: clamp(1.25rem, 6.7vw, 6rem); right: 13%; display: flex; justify-content: space-between; font-size: .72rem; letter-spacing: .07em; color: #454a44; pointer-events: none; }
+        .journey-caption { position: absolute; bottom: 2rem; left: clamp(1.25rem, 6.7vw, 6rem); right: 13%; display: flex; justify-content: space-between; font-size: .72rem; letter-spacing: .07em; color: var(--text-dim); pointer-events: none; }
         .journey-motion { position: absolute; right: 16%; bottom: 4rem; color: var(--text-dim); background: var(--bg); border: 0; border-bottom: 1px solid var(--line); padding: .5rem 0; min-height: 44px; font: .55rem ui-monospace, monospace; cursor: pointer; }
         @media (prefers-reduced-motion: reduce) { .journey-motion { display: none; } }
         @media (max-width: 759px) {
@@ -509,8 +514,8 @@ export function TechnologyDetails() {
   const [paused, setPaused] = useState(false);
   const [visible, setVisible] = useState(false);
   const rows = [
-    { label: "01 / ANALYZE & REPORT", categories: [0, 1, 2, 3], color: "#a44336" },
-    { label: "02 / CONNECT & DELIVER", categories: [4, 5, 6, 7], color: "#355b75" }
+    { label: "01 / ANALYZE & REPORT", categories: [0, 1, 2, 3], color: "var(--signal-red)" },
+    { label: "02 / CONNECT & DELIVER", categories: [4, 5, 6, 7], color: "var(--signal-blue)" }
   ];
 
   useEffect(() => {
